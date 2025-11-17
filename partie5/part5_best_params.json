@@ -1,0 +1,17 @@
+{
+  "best_params": {
+    "feature_type": "melspec",
+    "n_features": 71,
+    "architecture": "lstm",
+    "hidden_size": 192,
+    "num_layers": 3,
+    "dropout": 0.20870364400094707,
+    "learning_rate": 0.007714727526289663,
+    "batch_size": 16,
+    "bidirectional": true,
+    "noise_level": 0.052816278375640985
+  },
+  "best_value": 2.966344118118286,
+  "best_trial": 9,
+  "n_trials": 10
+}
