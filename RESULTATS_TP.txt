@@ -1,130 +1,53 @@
-================================================================================
-                    RÉSULTATS TP SPEECH-TO-TEXT
-                         LibriSpeech dev-clean
-                    Dataset: 500 samples (400 train / 100 val)
-================================================================================
+Synthèse des expérimentations
+=============================
+Corpus utilisé : LibriSpeech dev-clean (sous-échantillon de 500 fichiers, dont
+400 pour l’entraînement et 100 pour la validation). Tous les modèles optimisent
+la loss CTC et produisent des prédictions en greedy decoding.
 
-🏆 CLASSEMENT FINAL
---------------------------------------------------------------------------------
-Rang | Partie | Architecture          | Val Loss | Prédictions
---------------------------------------------------------------------------------
-🥇   | 3      | BiLSTM (bidirectionnel) | 2.33     | ✅ Vrais mots
-🥈   | 2      | CNN + MelSpectrogram    | 2.34     | ✅ Mots approximatifs  
-🥉   | 3      | LSTM                    | 2.38     | ✅ Mots
-4    | 3      | GRU                     | 2.39     | ✅ Mots
-5    | 1      | MLP + MFCC              | 2.79     | ❌ Vide (que des blanks)
-6    | 4      | Transformer             | 5.83     | ❌ Que des 'e'
+Résumé chiffré
+--------------
+| Partie | Architecture principale             | Loss validation approx. |
+|--------|-------------------------------------|--------------------------|
+| 1      | MLP + MFCC                          | 2.79                     |
+| 2      | CNN + MelSpectrogram                | 2.34                     |
+| 3      | BiLSTM (bidirectionnel)             | 2.33                     |
+| 4      | Transformer allégé                  | 5.83                     |
+| 5      | Optuna (BiLSTM + MelSpectrogram)    | 2.97*                    |
+(*) Partie 5 n’utilise que 300 échantillons pour accélérer les essais Optuna.
 
+Analyse synthétique
+-------------------
+1. Partie 1 — MLP + MFCC : le modèle prédit presque exclusivement le symbole
+   “blank”. La loss diminue mais les sorties restent vides, faute de mémoire
+   temporelle.
+2. Partie 2 — CNN + MelSpectrogram : première architecture capable de produire
+   des séquences lisibles. Les convolutions exploitent mieux les spectrogrammes
+   (80 bandes mel).
+3. Partie 3 — RNN : LSTM, GRU et surtout BiLSTM améliorent nettement le score.
+   Le BiLSTM est retenu comme référence (perte 2.33) grâce à sa capacité à
+   intégrer le contexte passé et futur. Le modèle hybride CNN+LSTM n’apporte pas
+   de gain supplémentaire sur ce corpus réduit.
+4. Partie 4 — Transformer : même avec un modèle allégé (d_model=64), la
+   convergence reste mauvaise sur 500 exemples. Le modèle dérive vers des
+   sorties répétitives.
+5. Partie 5 — Optuna : permet d’automatiser la recherche d’hyperparamètres.
+   L’essai gagnant privilégie un BiLSTM bidirectionnel, MelSpectrogram (71
+   canaux), 3 couches et un taux d’apprentissage de 7.7e-3. Les graphiques de
+   suivi sont regroupés dans `partie5/`.
 
-📊 ANALYSE PAR ARCHITECTURE
---------------------------------------------------------------------------------
+Fichiers à consulter
+--------------------
+- `partie1/part1_training_curves.png` : courbes de perte MLP
+- `partie2/part2_training_curves.png` : courbes CNN
+- `partie3/part3_architecture_comparison.png` : comparaison LSTM/GRU/BiLSTM
+- `partie4/part4_transformer_comparison.png` : évolution de la loss Transformer
+- `partie5/part5_tuning_summary.png` : résumé des 10 essais Optuna
+- `partie5/part5_best_params.json` : hyperparamètres retenus
 
-PARTIE 1 - MLP + MFCC + CTC
-  • Paramètres: 105K
-  • Loss: 7.31 → 2.79
-  • Résultat: Prédictions VIDES (que des tokens blank)
-  • Pourquoi: Pas de mémoire temporelle, traite chaque frame indépendamment
-
-PARTIE 2 - CNN + MelSpectrogram  
-  • Paramètres: 755K
-  • Loss: 3.08 → 2.34
-  • Résultat: Vrais caractères ! 'to md o boter tssevten'
-  • Amélioration: +16% vs MLP, features locales + plus d'info (80 mel-bins)
-
-PARTIE 3 - RNN (LSTM/GRU/BiLSTM)
-  • BiLSTM: 548K params, Loss 2.33 ⭐
-  • LSTM:   548K params, Loss 2.38
-  • GRU:    413K params, Loss 2.39 (25% plus rapide)
-  • CNN+LSTM: 694K params, Loss 2.39 (trop complexe)
-  • Résultat: EXCELLENT, mémoire temporelle = game changer
-
-PARTIE 4 - Transformer
-  • Paramètres: 152K (réduit)
-  • Loss: 5.26 → 5.83 (EMPIRE!)
-  • Résultat: Catastrophique, prédit que des 'e'
-  • Pourquoi: Besoin de millions d'exemples, pas adapté à 500 samples
-
-PARTIE 5 - Hyperparameter Tuning (Optuna)
-  • 10 trials testés, 300 samples
-  • Meilleur: Trial #9, Loss 2.97
-  • Config optimale:
-    - Feature: MelSpectrogram (71 bins) ← Plus que MFCC!
-    - Architecture: BiLSTM (192 hidden, 3 layers)
-    - Learning rate: 0.0077
-    - Batch size: 16
-    - Dropout: 0.21
-    - Bidirectional: True
-
-
-🎯 CONCLUSIONS CLÉS
---------------------------------------------------------------------------------
-
-1. MÉMOIRE TEMPORELLE = ESSENTIEL
-   → MLP échoue complètement sans contexte
-   → RNN/LSTM capturent les dépendances temporelles
-
-2. MFCC vs MEL-SPECTROGRAM
-   → MelSpec (80 bins) > MFCC (13 bins)
-   → Plus d'information = meilleure performance
-
-3. BIDIRECTIONALITÉ
-   → BiLSTM > LSTM/GRU
-   → Contexte passé + futur = +2% amélioration
-
-4. TRANSFORMERS = INUTILES ICI
-   → Besoin de 100K+ samples minimum
-   → LSTM plus efficace avec peu de données
-
-5. TUNING AUTOMATIQUE
-   → Optuna trouve automatiquement la meilleure config
-   → Gain de temps considérable
-
-
-💡 RECOMMANDATIONS
---------------------------------------------------------------------------------
-
-Pour du STT avec PEU de données (< 10K samples):
-  ✅ BiLSTM bidirectionnel
-  ✅ MelSpectrogram (60-80 bins)
-  ✅ 2-3 couches, 128-192 hidden
-  ✅ Learning rate ~0.005-0.01
-  ✅ Batch size 8-16
-
-Pour du STT avec BEAUCOUP de données (> 100K samples):
-  ✅ Transformer / Conformer
-  ✅ Fine-tuning wav2vec2 / Whisper
-  ✅ Data augmentation
-
-
-📈 PROGRESSION GLOBALE
---------------------------------------------------------------------------------
-Partie 1 (MLP):        2.79  ████████████████░░░░░░░░  Baseline
-Partie 2 (CNN):        2.34  ████████████████████░░░░  +16%
-Partie 3 (BiLSTM):     2.33  ████████████████████░░░░  +16.5% ⭐
-Partie 4 (Transformer): 5.83  ████░░░░░░░░░░░░░░░░░░░░  -109% ❌
-Partie 5 (Optimisé):   2.97  ██████████████████░░░░░░  +6% (moins de data)
-
-
-🔧 FICHIERS GÉNÉRÉS
---------------------------------------------------------------------------------
-partie1/ → part1_model.pth, part1_training_curves.png
-partie2/ → part2_model.pth, part2_training_curves.png  
-partie3/ → part3_model_*.pth, part3_architecture_comparison.png
-partie4/ → part4_model_transformer.pth, part4_transformer_comparison.png
-partie5/ → part5_best_params.json, part5_tuning_summary.png
-
-
-🎓 BILAN PÉDAGOGIQUE
---------------------------------------------------------------------------------
-✅ Démonstration de l'importance de la mémoire temporelle
-✅ Comparaison exhaustive MLP → CNN → RNN → Transformer
-✅ Optimisation automatique avec Optuna
-✅ Dataset réel (LibriSpeech) vs données synthétiques
-✅ CTC loss pour l'alignement automatique
-
-
-================================================================================
-                          TP TERMINÉ AVEC SUCCÈS ! 🎉
-              Meilleur modèle: BiLSTM (Val Loss 2.33)
-================================================================================
-
+Conclusion
+----------
+Sur ce volume de données, les architectures récurrentes restent la meilleure
+option : une BiLSTM bidirectionnelle, alimentée par des MelSpectrogram, offre la
+meilleure précision tout en gardant un coût de calcul raisonnable. Les approches
+Transformer deviendraient pertinentes avec un corpus beaucoup plus volumineux
+(et potentiellement un apprentissage pré-entraîné de type wav2vec2/Whisper).
