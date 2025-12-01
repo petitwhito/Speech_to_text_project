@@ -1,0 +1,29 @@
+[project]
+name = "speech-to-text-tp"
+version = "1.0.0"
+description = "Speech-to-Text TP: architectures from scratch and fine-tuning pre-trained models"
+requires-python = ">=3.10"
+license = "MIT"
+
+dependencies = [
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "tqdm>=4.65.0",
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    "optuna>=3.2.0",
+    "transformers>=4.30.0",
+    "datasets<3.6",
+    "accelerate>=0.20.0",
+    "evaluate>=0.4.0",
+    "jiwer>=3.0.0",
+    "tensorboard>=2.20.0",
+]
+
+[dependency-groups]
+dev = ["black", "ruff"]
+
+[tool.ruff]
+line-length = 100

@@ -16,7 +16,7 @@ import os
 
 
 class MFCCFeatureExtractor:
-    """Extract MFCC features from audio"""
+    """Extract MFCC features from audio."""
     
     def __init__(self, sample_rate=16000, n_mfcc=13, n_fft=400, hop_length=160):
         self.sample_rate = sample_rate
@@ -32,7 +32,7 @@ class MFCCFeatureExtractor:
         )
     
     def extract(self, waveform):
-        """Extract MFCC features from waveform"""
+        
         if waveform.dim() == 1:
             waveform = waveform.unsqueeze(0)
         
@@ -43,7 +43,7 @@ class MFCCFeatureExtractor:
 
 
 class TextEncoder:
-    """Encode text to character indices"""
+    """Encode text to character indices."""
     
     def __init__(self):
         self.blank_idx = 0
@@ -74,8 +74,6 @@ class TextEncoder:
 
 
 class SpeechDataset(Dataset):
-    """Custom dataset for speech recognition"""
-    
     def __init__(self, audio_paths, transcripts, feature_extractor, text_encoder):
         self.audio_paths = audio_paths
         self.transcripts = transcripts
@@ -101,7 +99,7 @@ class SpeechDataset(Dataset):
 
 
 def collate_fn(batch):
-    """Collate function for DataLoader"""
+    
     features, transcripts = zip(*batch)
     
     feature_lengths = torch.tensor([f.shape[0] for f in features], dtype=torch.long)
@@ -114,7 +112,7 @@ def collate_fn(batch):
 
 
 class LSTMEncoder(nn.Module):
-    """LSTM-based encoder for speech recognition"""
+    """LSTM-based encoder for speech recognition."""
     
     def __init__(self, input_size, hidden_size, num_layers, output_size, 
                  dropout=0.3, bidirectional=True):
@@ -170,7 +168,7 @@ class LSTMEncoder(nn.Module):
 
 
 class GRUEncoder(nn.Module):
-    """GRU-based encoder for speech recognition"""
+    """GRU-based encoder for speech recognition."""
     
     def __init__(self, input_size, hidden_size, num_layers, output_size, 
                  dropout=0.3, bidirectional=True):
@@ -226,7 +224,7 @@ class GRUEncoder(nn.Module):
 
 
 class CNNRNNEncoder(nn.Module):
-    """CNN + RNN hybrid encoder"""
+    """CNN + RNN hybrid encoder."""
     
     def __init__(self, input_size, hidden_size, num_layers, output_size, 
                  rnn_type='lstm', dropout=0.3, bidirectional=True):
@@ -308,7 +306,7 @@ class CNNRNNEncoder(nn.Module):
 
 
 def train_epoch(model, dataloader, optimizer, criterion, device):
-    """Train for one epoch"""
+    
     model.train()
     total_loss = 0
     
@@ -337,7 +335,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device):
 
 
 def evaluate(model, dataloader, criterion, device):
-    """Evaluate model"""
+    
     model.eval()
     total_loss = 0
     
@@ -355,7 +353,7 @@ def evaluate(model, dataloader, criterion, device):
 
 
 def decode_predictions(log_probs, text_encoder):
-    """Decode CTC predictions using greedy decoding"""
+    
     predictions = torch.argmax(log_probs, dim=2)
     predictions = predictions.transpose(0, 1)
     
@@ -376,7 +374,7 @@ def decode_predictions(log_probs, text_encoder):
 
 
 def load_librispeech_data(data_dir='../LibriSpeech/dev-clean', max_samples=500):
-    """Load LibriSpeech dataset"""
+    
     audio_paths = []
     transcripts = []
     
@@ -407,7 +405,7 @@ def load_librispeech_data(data_dir='../LibriSpeech/dev-clean', max_samples=500):
 
 
 def compare_architectures():
-    """Compare different RNN architectures"""
+    
     torch.manual_seed(42)
     np.random.seed(42)
     

@@ -1,66 +1,48 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
-.Python
 *.egg-info/
 dist/
 build/
 
-# Virtual Environment
+# Virtual environments
+.venv/
 venv/
-env/
-ENV/
 
-# Dataset
+# Datasets
 LibriSpeech/
 *.tar.gz
 *.zip
-data/
 *.flac
 *.wav
-*.mp3
 
-# Models (trop gros pour git)
+# Models
 *.pth
 *.pt
 *.ckpt
-*.h5
-*.pkl
-*.pickle
+*.safetensors
+whisper-finetuned/
+wav2vec2-finetuned/
 
 # Logs
 *.log
-training_log.txt
 logs/
+runs/
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
 # OS
 .DS_Store
-Thumbs.db
-
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb
 
 # Cache
-*.cache
+.cache/
 .pytest_cache/
 
 # Optuna
 optuna.db
-.optuna/
 
-# Graphiques (optionnel - décommente si tu veux les garder)
-# *.png
-
-# Résultats (optionnel - décommente si tu veux les ignorer)
-# RESULTATS_TP.txt
-
+# uv
+uv.lock
