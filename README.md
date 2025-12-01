@@ -1,7 +1,8 @@
 # Speech-To-Text TP
 
-![Python](https://img.shields.io/badge/python-3.10-blue.svg)
-![Machine Learning](https://img.shields.io/badge/field-Embedded%20ML-brightgreen)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![PyTorch](https://img.shields.io/badge/framework-PyTorch-orange.svg)
+![Speech Recognition](https://img.shields.io/badge/field-Speech%20Recognition-brightgreen)
 ![Status](https://img.shields.io/badge/status-Completed-success)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
